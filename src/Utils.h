@@ -14,26 +14,18 @@ enum class ChessboardColumns {
 /* Definition of the chessboard and pieces colors */
 enum class Color { black, white};
 
-/* Definitions of the chess figures move */
-enum AvMoves
-{
-    none,
-    piece,
-    knight,
-    cardinals,
-    diagonals
-};
-
 class Coordinate{
     private:
         int row;
         int column;
     public:
+        Coordinate();
         Coordinate(int _row, int _column) : row(_row), column(_column) {}
         Coordinate operator-(Coordinate c2);
         void operator+=(Coordinate c2);
         int getRow() const { return row; }
         int getColumn() const { return column; }
+        std::pair<Coordinate, std::vector<Moves>> Coordinate::analyseMoveType(Coordinate target);
 };
 
 enum class Moves{

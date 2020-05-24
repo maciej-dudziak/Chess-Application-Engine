@@ -110,13 +110,19 @@ void Game::playMove(Coordinate currentCoord, Coordinate targetCoord)
     int targetIdx = Game::getIndex(targetCoord);
     if ( chessboard[targetIdx].getOccupation() && chessboard[targetIdx].getPieceColor() == chessboard[currentIdx].getPieceColor() )
     {
-        return; /* if we are inside this means that the target field is occupied by a friendly Piece so the move cannot be done */ //TODO: take cara about the castle
+        /* if we are inside this means that the target field is occupied by a friendly Piece so the move cannot be done */
+        /* therefore it also includes situation when target==current*/
+        return; //TODO: take care about the castle
     }
-    /* Now we can investigate moving rules - if it is possible to play that move - First read the vector of available moves */
+    /* Now we will obtain a normalised direction and investigate what moves are possibly intended */
+    auto result = currentCoord.analyseMoveType(targetCoord);
+    Coordinate direction = result.first;
+    std::vector<Moves> possibleMoves = result.second;   /* Possible moves in that direction */
+    /* Now we will investigate which moves can be played by the resident piece */
     auto availableMoves = chessboard[currentIdx].availableMoves();
-    /* Now we will investigate what move is intented to be played */
-    Coordinate direction = targetCoord - currentCoord;
-    // TODO: ADD checking if this Piece is not bounded and cannot move
+    /* Now find the common move type between the possible intended moves and moves of the resident piece */
+    auto actualMove = find_first_of(begin(availableMoves), end(availableMoves), begin(possibleMoves), end(possibleMoves));
+    // TODO: ADD checking if this Piece 5is not bounded and cannot move
     
     /* If the abs() of difference of rows and columns are the same it is the diagonal move or Pawn move */
     if ( abs(direction.getRow()) == abs(direction.getColumn()) )
