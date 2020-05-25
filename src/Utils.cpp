@@ -3,17 +3,18 @@
 #include <vector>
 #include "Utils.h"
 
-Coordinate Coordinate::operator-(Coordinate c2)
+Coordinate Coordinate::operator-(const Coordinate& c2)
 {
     int rowDiff = row - c2.row;
     int columnDiff = column - c2.column;
     return Coordinate(rowDiff, columnDiff);
 }
 
-void Coordinate::operator+=(Coordinate c2)
+Coordinate& Coordinate::operator+=(const Coordinate& c2)
 {
-    row = row + c2.row;
-    column = column + c2.column;
+    row += c2.row;
+    column += c2.column;
+    return *this;
 }
 
 std::pair<Coordinate, Coordinate> parseInput(std::string input)
@@ -40,6 +41,8 @@ std::pair<Coordinate, std::vector<Moves>> Coordinate::analyseMoveType(Coordinate
         moves.insert(begin(moves),{Moves::Cardinals,Moves::Pawn});
     } else {
         moves.push_back(Moves::Knigth);
+        move_row = target.row - row;
+        move_col = target.column - column;
     }
     return std::pair<Coordinate, std::vector<Moves>>{Coordinate(move_row,move_col),moves};
 }
