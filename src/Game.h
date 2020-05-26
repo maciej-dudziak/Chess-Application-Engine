@@ -34,10 +34,12 @@ class Game
          */
         std::array<Field, 64> chessboard;
         std::vector<std::unique_ptr<Piece>> removedPieces;
+        Color turn;
     public:
         Game();
         void placePieces();
         void printGame() const;
         void playMove(Coordinate currentCoord ,Coordinate targetCoord);
+        std::unique_ptr<Piece> replacePawn();
         int getIndex(Coordinate coord) const;
 };

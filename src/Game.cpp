@@ -28,6 +28,8 @@ Game::Game()
         row++;
         if ( row == 8 ){ row = 0; column++; }
     }
+    /* Initiate TURN variable to white */
+    turn = Color::white;
     /* Create pieces and place them */
     Game::placePieces();
     /* Create an empty vector of removedPieces */
@@ -83,6 +85,8 @@ int Game::getIndex(Coordinate coord) const
 
 void Game::printGame() const
 {
+    std::string message = (turn == Color::white ? "White" : "Black");
+    std::cout << "Player Turn >>> " << message << " <<<" << std::endl;
     std::cout << "      H     G     F     E     D     C     B     A " << std::endl;
     std::cout << "    ==============================================" << std::endl;
     int column = 0, row = 0;
@@ -105,6 +109,8 @@ void Game::playMove(Coordinate currentCoord, Coordinate targetCoord)
     int currentIdx = Game::getIndex(currentCoord);
     /* if the current field is not occupied - no Piece to move -> return from the function */
     if (!chessboard[currentIdx].getOccupation()) return;
+    /* Check the players turn */
+    if (chessboard[currentIdx].getPieceColor() != turn) return;
     /* check if we can move the piece to the target location */
     /* if the target location is occupied then we can play the move only if the piece colors are different */
     int targetIdx = Game::getIndex(targetCoord);
@@ -125,9 +131,36 @@ void Game::playMove(Coordinate currentCoord, Coordinate targetCoord)
     /* If any common element exists - there can be only one */
     if (actualMove != end(availableMoves))
     {
+        /* Variable to steer Pawn behaviour */
+        bool inFirstRow = false;
+        /* Additional consideration for the Pawn case*/
+        if (*actualMove == Moves::Pawn)
+        {
+            Color pieceColor = chessboard[currentIdx].getPieceColor();
+            if (pieceColor == Color::white)
+            {
+                /* If Pawn color is white, it can only move downwards -> direction.row must be -1*/
+                if (direction.getRow()<0) return;
+                /* If White Pawn is in the row #2 - it can move by two fields */
+                if (currentCoord.getRow()==1) inFirstRow=true;
+            }
+            else
+            {
+                /* Pawn Color is Black then*/
+                /* If Pawn color is black, it can only move upwards -> direction.row must be 1*/
+                if (direction.getRow()>0) return;
+                /* If Black Pawn is in the row #7 - it can move by two fields */
+                if (currentCoord.getRow()==6) inFirstRow=true;
+            }
+            /* Pawns can move to the side only when beating enemy Piece */
+            if (direction.getColumn()!=0 && !chessboard[targetIdx].getOccupation())
+            {
+                return;
+            }
+        }
         /* Play a move: increment a CURRENT by DIRECTION and check on every step   */
         /* If the field on the way is occupied by any piece and therefore the move */
-        /* Is not possible - for Kingth the DIRECTION has a value of the move so we*/
+        /* Is not possible - for Knigth the DIRECTION has a value of the move so we*/
         /* Arrive at the target after first iteration                              */
         Coordinate temp = currentCoord;
         int tempIndex;
@@ -135,6 +168,12 @@ void Game::playMove(Coordinate currentCoord, Coordinate targetCoord)
             /* Initiate temporary coord variable and calculate its chessboard index*/
             temp += direction;
             tempIndex = Game::getIndex(temp);
+            /* If the Piece is a Pawn take care to limit its move to one field, or two when it is in his starting row */
+            if (*actualMove == Moves::Pawn)
+            {
+                if (!inFirstRow) break;
+                inFirstRow = false;
+            }
             /* Iterate until the target coordinate is achieved or the move is blocked by the piece on its way */
         } while (temp != targetCoord && !chessboard[tempIndex].getOccupation());
         /* If the target can be reached - execute the move */
@@ -149,12 +188,37 @@ void Game::playMove(Coordinate currentCoord, Coordinate targetCoord)
             }
             /* Finalise the move by placing played Piece at the target's location */
             chessboard[targetIdx].placePiece(chessboard[currentIdx].getPiece());
+            /* If the Pawn was played and reached the end of chessboard - allow replacing it */
+            if (*actualMove == Moves::Pawn)
+            {
+                if (targetCoord.getRow()==0 || targetCoord.getRow()==7)
+                {
+                    /* Ask player which Piece should replace the Pawn */
+                    auto newPiece = Game::replacePawn(); //TODO: add body!
+                    /* Remove the Pawn*/
+                    removedPieces.push_back(chessboard[targetIdx].getPiece());
+                    /* Place selected Piece */
+                    chessboard[targetIdx].placePiece(std::move(newPiece));
+                }
+            }
+            /* Move has been played - change the turn */
+            if (turn == Color::white) turn=Color::black;
+            else turn=Color::white;
         }
     }
-    // TODO: add the King's case - CHECK instead of beating the King
-    // TODO: add Castle consideratiom
-    // TODO: Pawn cases - starting move (2fields) and the diagonal move for beating
-    // TODO: add the consideration it the Pawn reached the end of the board
-    // TODO: Pawn case that it can move only in the one direction
     return;
+}
+
+std::unique_ptr<Piece> Game::replacePawn(){
+    std::string message = (turn == Color::white ? "White" : "Black");
+    std::string pieceName;
+    std::unique_ptr<Piece> newPiece = std::make_unique<Piece>();
+    std::cout << "Player: " << message << " - your Pawn reached the end of the board" << std::endl;
+    std::cout << "Which Piece you want to replace it? Type its name in low case." << std::endl;
+    std::cin >> pieceName;
+    if (pieceName == "queen") newPiece = std::make_unique<Queen>(turn);
+    else if (pieceName == "rook") newPiece = std::make_unique<Rook>(turn);
+    else if (pieceName == "bishop") newPiece = std::make_unique<Bishop>(turn);
+    else if (pieceName == "knight") newPiece = std::make_unique<Knigth>(turn);
+    return std::move(newPiece);
 }
