@@ -1,0 +1,2 @@
+g++ -std=c++17 -Wall  -c main_test.cpp
+g++ -std=c++17 -Wall  -o test main_test.o Pieces_test.cpp
