@@ -106,6 +106,8 @@ void Game::printGame() const
 
 void Game::playMove(Coordinate currentCoord, Coordinate targetCoord)
 {
+    /* If the current and target are the same - return */
+    if (currentCoord == targetCoord) return;
     int currentIdx = Game::getIndex(currentCoord);
     /* if the current field is not occupied - no Piece to move -> return from the function */
     if (!chessboard[currentIdx].getOccupation()) return;

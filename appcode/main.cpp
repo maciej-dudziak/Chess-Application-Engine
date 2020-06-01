@@ -13,6 +13,7 @@ int main()
         std::cout << "Input next move in format: <A-H><1-8>,<A-H><1-8>" << std::endl;
         std::cin >> input;
         std::pair<Coordinate, Coordinate> moveCoords = parseInput(input);
+        if (moveCoords.first == Coordinate(-1,-1)) continue;
         Chess.playMove(moveCoords.first, moveCoords.second);
         Chess.printGame();
     }
