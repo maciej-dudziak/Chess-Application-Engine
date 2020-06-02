@@ -47,3 +47,8 @@ std::unique_ptr<Piece> Field::getPiece()
     piecePtr = std::make_unique<Piece>();
     return std::move(temp);
 }
+
+Color Field::getColor()
+{
+    return fieldColor;
+}

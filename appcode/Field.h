@@ -14,6 +14,7 @@ class Field {
         ~Field() = default;
 
         void setColor(Color newColor);
+        Color getColor();
         void setOccupation(bool state);
         bool getOccupation();
         Color getPieceColor();

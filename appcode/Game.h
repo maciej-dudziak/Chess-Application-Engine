@@ -40,7 +40,10 @@ class Game
         void placePieces();
         void printGame() const;
         void playMove(Coordinate currentCoord ,Coordinate targetCoord);
-        std::unique_ptr<Piece> replacePawn();
+        std::unique_ptr<Piece> getPawnToReplace();
         int getIndex(Coordinate coord) const;
         std::pair<Coordinate, std::vector<Moves>> analyseMoveType(Coordinate current, Coordinate target);
+        bool isPawnInSecondRow(Color pawnColor, int pawnRow);
+        bool isPawnMoveLegal(Coordinate direction, Color pawnColor, bool tagetOccupation);
+        void replacePawn(int targetIdx);
 };
