@@ -1,3 +1,4 @@
+/*
 #include "../Field.h"
 
 void Field::setColor(Color newColor)
@@ -52,3 +53,4 @@ Color Field::getColor()
 {
     return fieldColor;
 }
+*/
